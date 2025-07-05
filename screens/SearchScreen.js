@@ -325,18 +325,7 @@ export default function SearchScreen({ navigation }) {
         )}
       </View>
 
-      {/* Results Header */}
-      <View style={styles.resultsHeader}>
-        <Text style={styles.resultsText}>
-          {filteredPosts.length} result{filteredPosts.length !== 1 ? "s" : ""} found
-        </Text>
-        {filteredPosts.length > 0 && (
-          <Text style={styles.resultsSubtext}>
-            {postTypeFilter !== "All" ? `${postTypeFilter}s` : "Posts"} 
-            {locationFilter ? ` in ${locationFilter}` : ""}
-          </Text>
-        )}
-      </View>
+
 
       {/* Results List */}
       <FlatList
@@ -389,11 +378,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   searchSection: {
-    backgroundColor: "white",
     paddingHorizontal: 20,
     paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f1f5f9",
   },
   searchInputContainer: {
     flexDirection: "row",

@@ -71,7 +71,7 @@ function AppStack() {
       <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
       <Stack.Screen name="PostDetail" component={PostDetailScreen} options={{ headerShown: false }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Conversation" component={ConversationScreen} options={{ title: "Messages" }} />
+      <Stack.Screen name="Conversation" component={ConversationScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   )
 }

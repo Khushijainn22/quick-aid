@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   View,
   Text,
@@ -10,16 +10,20 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  StatusBar,
 } from "react-native"
+import { LinearGradient } from "expo-linear-gradient"
+import { Ionicons } from "@expo/vector-icons"
 import { useData } from "../context/DataContext"
 import { useAuth } from "../context/AuthContext"
 
-export default function ConversationScreen({ route }) {
+export default function ConversationScreen({ route, navigation }) {
   const { conversation, otherUser } = route.params
   const [message, setMessage] = useState("")
   const [currentConversation, setCurrentConversation] = useState(conversation)
   const { sendMessage, conversations } = useData()
   const { user } = useAuth()
+  const flatListRef = useRef(null)
 
   useEffect(() => {
     // Update conversation when conversations change
@@ -35,6 +39,10 @@ export default function ConversationScreen({ route }) {
     const result = await sendMessage(otherUser.id, message, user.id)
     if (result.success) {
       setMessage("")
+      // Auto-scroll to bottom after sending message
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true })
+      }, 100)
     }
   }
 
@@ -48,113 +56,222 @@ export default function ConversationScreen({ route }) {
 
     return (
       <View style={[styles.messageContainer, isMyMessage ? styles.myMessage : styles.otherMessage]}>
-        <Text style={[styles.messageText, isMyMessage ? styles.myMessageText : styles.otherMessageText]}>
-          {item.message}
-        </Text>
-        <Text style={[styles.messageTime, isMyMessage ? styles.myMessageTime : styles.otherMessageTime]}>
-          {formatTime(item.timestamp)}
-        </Text>
+        {!isMyMessage && (
+          <View style={styles.otherUserAvatar}>
+            <Text style={styles.otherUserAvatarText}>{otherUser.fullName.charAt(0).toUpperCase()}</Text>
+          </View>
+        )}
+        <View style={[styles.messageBubble, isMyMessage ? styles.myMessageBubble : styles.otherMessageBubble]}>
+          <Text style={[styles.messageText, isMyMessage ? styles.myMessageText : styles.otherMessageText]}>
+            {item.message}
+          </Text>
+          <Text style={[styles.messageTime, isMyMessage ? styles.myMessageTime : styles.otherMessageTime]}>
+            {formatTime(item.timestamp)}
+          </Text>
+        </View>
       </View>
     )
   }
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <View style={styles.header}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{otherUser.fullName.charAt(0).toUpperCase()}</Text>
-        </View>
-        <Text style={styles.headerTitle}>{otherUser.fullName}</Text>
-      </View>
-
-      <FlatList
-        data={currentConversation.messages}
-        renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
-        style={styles.messagesList}
-        contentContainerStyle={styles.messagesContainer}
-        showsVerticalScrollIndicator={false}
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#1e293b" />
+      <LinearGradient
+        colors={["#1e293b", "#334155", "#475569"]}
+        style={styles.backgroundGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
       />
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.messageInput}
-          placeholder="Type a message..."
-          value={message}
-          onChangeText={setMessage}
-          multiline
-          maxLength={500}
-        />
-        <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage} disabled={!message.trim()}>
-          <Text style={styles.sendButtonText}>Send</Text>
+      {/* Header */}
+      <LinearGradient
+        colors={["rgba(30, 41, 59, 0.95)", "rgba(51, 65, 85, 0.95)"]}
+        style={styles.header}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+      >
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+        <View style={styles.headerContent}>
+          <View style={styles.headerAvatar}>
+            <Text style={styles.headerAvatarText}>{otherUser.fullName.charAt(0).toUpperCase()}</Text>
+          </View>
+          <View style={styles.headerInfo}>
+            <Text style={styles.headerTitle}>{otherUser.fullName}</Text>
+          </View>
+        </View>
+        <View style={styles.placeholder} />
+      </LinearGradient>
+
+      <KeyboardAvoidingView 
+        style={styles.chatContainer} 
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+      >
+        <FlatList
+          ref={flatListRef}
+          data={currentConversation.messages}
+          renderItem={renderMessage}
+          keyExtractor={(item) => item.id}
+          style={styles.messagesList}
+          contentContainerStyle={styles.messagesContainer}
+          showsVerticalScrollIndicator={false}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+        />
+
+        <View style={styles.inputContainer}>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.messageInput}
+              placeholder="Type a message..."
+              placeholderTextColor="#94a3b8"
+              value={message}
+              onChangeText={setMessage}
+              multiline
+              maxLength={500}
+              textAlignVertical="top"
+            />
+            <TouchableOpacity 
+              style={[styles.sendButton, !message.trim() && styles.sendButtonDisabled]} 
+              onPress={handleSendMessage} 
+              disabled={!message.trim()}
+            >
+              <Ionicons name="send" size={20} color="white" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+  },
+  backgroundGradient: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
   header: {
-    backgroundColor: "white",
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
   },
-  avatar: {
+  backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#6366f1",
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+  },
+  headerAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#667eea",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
   },
-  avatarText: {
+  headerAvatarText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
   },
+  headerInfo: {
+    alignItems: "center",
+  },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "600",
-    color: "#1e293b",
+    fontWeight: "bold",
+    color: "white",
+  },
+  headerSubtitle: {
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.8)",
+    marginTop: 2,
+  },
+  placeholder: {
+    width: 40,
+  },
+  chatContainer: {
+    flex: 1,
   },
   messagesList: {
     flex: 1,
   },
   messagesContainer: {
     padding: 16,
+    paddingBottom: 20,
   },
   messageContainer: {
-    marginBottom: 12,
-    maxWidth: "80%",
+    marginBottom: 16,
+    flexDirection: "row",
+    alignItems: "flex-end",
   },
   myMessage: {
-    alignSelf: "flex-end",
-    backgroundColor: "#6366f1",
-    borderRadius: 18,
-    borderBottomRightRadius: 4,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    justifyContent: "flex-end",
   },
   otherMessage: {
-    alignSelf: "flex-start",
-    backgroundColor: "white",
-    borderRadius: 18,
-    borderBottomLeftRadius: 4,
+    justifyContent: "flex-start",
+  },
+  otherUserAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#667eea",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 8,
+  },
+  otherUserAvatarText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  messageBubble: {
+    maxWidth: "75%",
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 12,
+    borderRadius: 20,
+  },
+  myMessageBubble: {
+    backgroundColor: "#667eea",
+    borderBottomRightRadius: 6,
+  },
+  otherMessageBubble: {
+    backgroundColor: "white",
+    borderBottomLeftRadius: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   messageText: {
     fontSize: 16,
     lineHeight: 20,
+    marginBottom: 4,
   },
   myMessageText: {
     color: "white",
@@ -163,8 +280,7 @@ const styles = StyleSheet.create({
     color: "#1e293b",
   },
   messageTime: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: 11,
   },
   myMessageTime: {
     color: "rgba(255, 255, 255, 0.7)",
@@ -174,31 +290,36 @@ const styles = StyleSheet.create({
     color: "#94a3b8",
   },
   inputContainer: {
-    backgroundColor: "white",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  inputWrapper: {
     flexDirection: "row",
-    padding: 16,
     alignItems: "flex-end",
-    borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
+    backgroundColor: "#f8fafc",
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
   },
   messageInput: {
     flex: 1,
-    backgroundColor: "#f1f5f9",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginRight: 12,
-    maxHeight: 100,
     fontSize: 16,
+    color: "#1e293b",
+    maxHeight: 100,
+    paddingVertical: 8,
   },
   sendButton: {
-    backgroundColor: "#6366f1",
+    backgroundColor: "#667eea",
     borderRadius: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 8,
   },
-  sendButtonText: {
-    color: "white",
-    fontWeight: "600",
+  sendButtonDisabled: {
+    backgroundColor: "#94a3b8",
   },
 })
