@@ -11,8 +11,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StatusBar,
+  Dimensions,
 } from "react-native"
+import { LinearGradient } from "expo-linear-gradient"
+import { Ionicons } from "@expo/vector-icons"
 import { useAuth } from "../context/AuthContext"
+
+const { width, height } = Dimensions.get("window")
 
 export default function EditProfileScreen({ navigation }) {
   const { user, updateProfile } = useAuth()
@@ -46,41 +52,99 @@ export default function EditProfileScreen({ navigation }) {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <StatusBar barStyle="light-content" backgroundColor="#1e293b" />
+      
+      {/* Background Gradient */}
+      <LinearGradient
+        colors={["#1e293b", "#334155", "#475569"]}
+        style={styles.backgroundGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
+
+      {/* Header */}
+      <LinearGradient
+        colors={["rgba(30, 41, 59, 0.95)", "rgba(51, 65, 85, 0.95)"]}
+        style={styles.header}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+      >
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={24} color="white" />
+        </TouchableOpacity>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>Edit Profile</Text>
+          <Text style={styles.headerSubtitle}>Update your information</Text>
+        </View>
+        <View style={styles.placeholder} />
+      </LinearGradient>
+
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.content}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{formData.fullName.charAt(0).toUpperCase()}</Text>
+          {/* Avatar Section */}
+          <View style={styles.avatarSection}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{formData.fullName.charAt(0).toUpperCase()}</Text>
+            </View>
+            <Text style={styles.avatarSubtitle}>Profile Picture</Text>
           </View>
 
-          <Text style={styles.label}>Full Name</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.fullName}
-            onChangeText={(value) => updateFormData("fullName", value)}
-            placeholder="Enter full name"
-          />
+          {/* Form Section */}
+          <View style={styles.formSection}>
+            <View style={styles.inputContainer}>
+              <Ionicons name="person-outline" size={20} color="#667eea" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Full Name"
+                placeholderTextColor="#a0a0a0"
+                value={formData.fullName}
+                onChangeText={(value) => updateFormData("fullName", value)}
+              />
+            </View>
 
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.email}
-            onChangeText={(value) => updateFormData("email", value)}
-            placeholder="Enter email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+            <View style={styles.inputContainer}>
+              <Ionicons name="mail-outline" size={20} color="#667eea" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Email Address"
+                placeholderTextColor="#a0a0a0"
+                value={formData.email}
+                onChangeText={(value) => updateFormData("email", value)}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
 
-          <Text style={styles.label}>Phone Number</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.phoneNumber}
-            onChangeText={(value) => updateFormData("phoneNumber", value)}
-            placeholder="Enter phone number"
-            keyboardType="phone-pad"
-          />
+            <View style={styles.inputContainer}>
+              <Ionicons name="call-outline" size={20} color="#667eea" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Phone Number"
+                placeholderTextColor="#a0a0a0"
+                value={formData.phoneNumber}
+                onChangeText={(value) => updateFormData("phoneNumber", value)}
+                keyboardType="phone-pad"
+              />
+            </View>
+          </View>
 
-          <TouchableOpacity style={styles.button} onPress={handleUpdate} disabled={loading}>
-            <Text style={styles.buttonText}>{loading ? "Updating..." : "Update Profile"}</Text>
+          {/* Update Button */}
+          <TouchableOpacity 
+            style={[styles.updateButton, loading && styles.updateButtonDisabled]}
+            onPress={handleUpdate} 
+            disabled={loading}
+          >
+            <Ionicons name="checkmark-circle-outline" size={20} color="white" style={styles.buttonIcon} />
+            <Text style={styles.updateButtonText}>
+              {loading ? "Updating..." : "Update Profile"}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -91,59 +155,138 @@ export default function EditProfileScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+  },
+  backgroundGradient: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  headerContent: {
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "white",
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    fontWeight: "400",
+    color: "rgba(255, 255, 255, 0.8)",
+    marginTop: 2,
+  },
+  placeholder: {
+    width: 40,
   },
   scrollContent: {
     flexGrow: 1,
   },
   content: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
+  },
+  avatarSection: {
     alignItems: "center",
+    marginBottom: 30,
   },
   avatar: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "#6366f1",
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 32,
+    marginBottom: 12,
+    borderWidth: 3,
+    borderColor: "rgba(255, 255, 255, 0.3)",
   },
   avatarText: {
     color: "white",
     fontSize: 36,
     fontWeight: "bold",
   },
-  label: {
+  avatarSubtitle: {
     fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 8,
-    color: "#374151",
-    alignSelf: "flex-start",
-    width: "100%",
+    fontWeight: "500",
+    color: "rgba(255, 255, 255, 0.8)",
+  },
+  formSection: {
+    marginBottom: 30,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
+    borderRadius: 16,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  inputIcon: {
+    marginRight: 12,
   },
   input: {
-    backgroundColor: "white",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+    flex: 1,
     fontSize: 16,
-    width: "100%",
-  },
-  button: {
-    backgroundColor: "#6366f1",
+    fontWeight: "400",
+    color: "#333",
     paddingVertical: 16,
-    borderRadius: 8,
-    width: "100%",
-    marginTop: 20,
   },
-  buttonText: {
+  updateButton: {
+    backgroundColor: "#667eea",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+    shadowColor: "#667eea",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  updateButtonDisabled: {
+    opacity: 0.7,
+  },
+  updateButtonText: {
     color: "white",
-    textAlign: "center",
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
+  },
+  buttonIcon: {
+    marginRight: 8,
   },
 })
