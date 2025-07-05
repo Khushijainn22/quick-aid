@@ -23,6 +23,7 @@ const { width, height } = Dimensions.get("window")
 
 export default function CreatePostScreen({ navigation }) {
   const [formData, setFormData] = useState({
+    postType: "Request", // "Request" or "Offer"
     title: "",
     description: "",
     location: "",
@@ -56,8 +57,9 @@ export default function CreatePostScreen({ navigation }) {
     setLoading(false)
 
     if (result.success) {
-      Alert.alert("Success", "Emergency post created successfully", [{ text: "OK", onPress: () => navigation.navigate("Feed") }])
+      Alert.alert("Success", "Healthcare post created successfully", [{ text: "OK", onPress: () => navigation.navigate("Feed") }])
       setFormData({
+        postType: "Request",
         title: "",
         description: "",
         location: "",
@@ -107,17 +109,56 @@ export default function CreatePostScreen({ navigation }) {
             <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
           <View style={styles.headerContent}>
-            <Text style={styles.headerTitle}>Create Emergency Post</Text>
-            <Text style={styles.headerSubtitle}>Help someone in need</Text>
+            <Text style={styles.headerTitle}>Create Healthcare Post</Text>
+            <Text style={styles.headerSubtitle}>Share or request healthcare resources</Text>
           </View>
           <View style={styles.placeholder} />
         </LinearGradient>
 
         <View style={styles.content}>
-          {/* Emergency Icon */}
-          <View style={styles.emergencyIconContainer}>
-            <Ionicons name="warning" size={40} color="#ef4444" />
-            <Text style={styles.emergencyText}>Emergency Alert</Text>
+          {/* Post Type Selector */}
+          <View style={styles.postTypeContainer}>
+            <Text style={styles.sectionTitle}>Post Type</Text>
+            <View style={styles.postTypeButtons}>
+              <TouchableOpacity
+                style={[
+                  styles.postTypeButton,
+                  formData.postType === "Request" && styles.postTypeButtonActive
+                ]}
+                onPress={() => updateFormData("postType", "Request")}
+              >
+                <Ionicons 
+                  name="help-circle-outline" 
+                  size={20} 
+                  color={formData.postType === "Request" ? "white" : "#667eea"} 
+                />
+                <Text style={[
+                  styles.postTypeText,
+                  formData.postType === "Request" && styles.postTypeTextActive
+                ]}>
+                  Request Help
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.postTypeButton,
+                  formData.postType === "Offer" && styles.postTypeButtonActive
+                ]}
+                onPress={() => updateFormData("postType", "Offer")}
+              >
+                <Ionicons 
+                  name="heart-outline" 
+                  size={20} 
+                  color={formData.postType === "Offer" ? "white" : "#10b981"} 
+                />
+                <Text style={[
+                  styles.postTypeText,
+                  formData.postType === "Offer" && styles.postTypeTextActive
+                ]}>
+                  Offer Help
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Title Field */}
@@ -125,7 +166,7 @@ export default function CreatePostScreen({ navigation }) {
             <Ionicons name="create-outline" size={20} color="#667eea" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
-              placeholder="Emergency Title"
+              placeholder={formData.postType === "Request" ? "What do you need?" : "What can you offer?"}
               placeholderTextColor="#a0a0a0"
               value={formData.title}
               onChangeText={(value) => updateFormData("title", value)}
@@ -137,7 +178,7 @@ export default function CreatePostScreen({ navigation }) {
             <Ionicons name="document-text-outline" size={20} color="#667eea" style={styles.inputIcon} />
             <TextInput
               style={[styles.input, styles.textArea]}
-              placeholder="Describe the emergency situation..."
+              placeholder={formData.postType === "Request" ? "Describe what you need..." : "Describe what you can provide..."}
               placeholderTextColor="#a0a0a0"
               value={formData.description}
               onChangeText={(value) => updateFormData("description", value)}
@@ -159,44 +200,54 @@ export default function CreatePostScreen({ navigation }) {
             />
           </View>
 
-          {/* Emergency Type */}
-          <Text style={styles.sectionTitle}>Emergency Type</Text>
-          <TouchableOpacity 
-            style={styles.pickerContainer}
-            onPress={() => setShowEmergencyPicker(!showEmergencyPicker)}
-          >
-            <Text style={styles.pickerText}>{formData.emergencyType}</Text>
-            <Ionicons 
-              name={showEmergencyPicker ? "chevron-up" : "chevron-down"} 
-              size={20} 
-              color="#667eea" 
-            />
-          </TouchableOpacity>
-
-          {/* Urgency Level */}
-          <Text style={styles.sectionTitle}>Urgency Level</Text>
-          <View style={styles.urgencyContainer}>
-            {["Low", "Medium", "High", "Critical"].map((level) => (
-              <TouchableOpacity
-                key={level}
-                style={[
-                  styles.urgencyButton,
-                  formData.urgencyLevel === level && styles.urgencyButtonActive
-                ]}
-                onPress={() => updateFormData("urgencyLevel", level)}
+          {/* Emergency Type - Only show for requests */}
+          {formData.postType === "Request" && (
+            <>
+              <Text style={styles.sectionTitle}>Need Type</Text>
+              <TouchableOpacity 
+                style={styles.pickerContainer}
+                onPress={() => setShowEmergencyPicker(!showEmergencyPicker)}
               >
-                <Text style={[
-                  styles.urgencyText,
-                  formData.urgencyLevel === level && styles.urgencyTextActive
-                ]}>
-                  {level}
-                </Text>
+                <Text style={styles.pickerText}>{formData.emergencyType}</Text>
+                <Ionicons 
+                  name={showEmergencyPicker ? "chevron-up" : "chevron-down"} 
+                  size={20} 
+                  color="#667eea" 
+                />
               </TouchableOpacity>
-            ))}
-          </View>
+            </>
+          )}
+
+          {/* Urgency Level - Only show for requests */}
+          {formData.postType === "Request" && (
+            <>
+              <Text style={styles.sectionTitle}>Urgency Level</Text>
+              <View style={styles.urgencyContainer}>
+                {["Low", "Medium", "High", "Critical"].map((level) => (
+                  <TouchableOpacity
+                    key={level}
+                    style={[
+                      styles.urgencyButton,
+                      formData.urgencyLevel === level && styles.urgencyButtonActive
+                    ]}
+                    onPress={() => updateFormData("urgencyLevel", level)}
+                  >
+                    <Text style={[
+                      styles.urgencyText,
+                      formData.urgencyLevel === level && styles.urgencyTextActive
+                    ]}>
+                      {level}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </>
+          )}
 
           {/* Resource Type */}
-          <Text style={styles.sectionTitle}>Resource Type</Text>
+          <Text style={styles.sectionTitle}>
+            {formData.postType === "Request" ? "Resource Type" : "What You're Offering"}
+          </Text>
           <TouchableOpacity 
             style={styles.pickerContainer}
             onPress={() => setShowResourcePicker(!showResourcePicker)}
@@ -242,9 +293,14 @@ export default function CreatePostScreen({ navigation }) {
             onPress={handleCreatePost}
             disabled={loading}
           >
-            <Ionicons name="warning" size={20} color="white" style={styles.buttonIcon} />
+            <Ionicons 
+              name={formData.postType === "Request" ? "help-circle" : "heart"} 
+              size={20} 
+              color="white" 
+              style={styles.buttonIcon} 
+            />
             <Text style={styles.createButtonText}>
-              {loading ? "Submitting..." : "Submit"}
+              {loading ? "Submitting..." : formData.postType === "Request" ? "Submit Request" : "Submit Offer"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -260,7 +316,7 @@ export default function CreatePostScreen({ navigation }) {
           />
           <View style={styles.modalDropdown}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Emergency Type</Text>
+              <Text style={styles.modalTitle}>Select Need Type</Text>
               <TouchableOpacity onPress={() => setShowEmergencyPicker(false)}>
                 <Ionicons name="close" size={24} color="#667eea" />
               </TouchableOpacity>
@@ -301,7 +357,9 @@ export default function CreatePostScreen({ navigation }) {
           />
           <View style={styles.modalDropdown}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Resource Type</Text>
+              <Text style={styles.modalTitle}>
+                {formData.postType === "Request" ? "Select Resource Type" : "Select What You're Offering"}
+              </Text>
               <TouchableOpacity onPress={() => setShowResourcePicker(false)}>
                 <Ionicons name="close" size={24} color="#667eea" />
               </TouchableOpacity>
@@ -388,78 +446,135 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 40,
   },
-  emergencyIconContainer: {
-    alignItems: "center",
+  postTypeContainer: {
     marginBottom: 30,
-    paddingVertical: 20,
   },
-  emergencyText: {
-    fontSize: 18,
+  postTypeButtons: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  postTypeButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  postTypeButtonActive: {
+    backgroundColor: "#667eea",
+  },
+  postTypeText: {
+    fontSize: 14,
     fontWeight: "600",
     color: "white",
-    marginTop: 8,
+  },
+  postTypeTextActive: {
+    color: "white",
   },
   inputContainer: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     backgroundColor: "white",
-    borderRadius: 16,
-    marginBottom: 16,
+    borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 4,
+    paddingVertical: 12,
+    marginBottom: 16,
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowRadius: 4,
     elevation: 3,
   },
   inputIcon: {
     marginRight: 12,
-    marginTop: 16,
   },
   input: {
     flex: 1,
     fontSize: 16,
-    fontWeight: "400",
-    color: "#333",
-    paddingVertical: 16,
+    color: "#1e293b",
   },
   textArea: {
-    minHeight: 100,
+    height: 100,
     textAlignVertical: "top",
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
     color: "white",
-    marginBottom: 12,
+    marginBottom: 8,
     marginTop: 8,
   },
   pickerContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: "white",
-    borderRadius: 16,
-    marginBottom: 16,
+    borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 12,
+    marginBottom: 16,
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowRadius: 4,
     elevation: 3,
   },
   pickerText: {
     fontSize: 16,
-    fontWeight: "400",
-    color: "#333",
+    color: "#1e293b",
     flex: 1,
+  },
+  urgencyContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 16,
+  },
+  urgencyButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  urgencyButtonActive: {
+    backgroundColor: "#ef4444",
+  },
+  urgencyText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "white",
+  },
+  urgencyTextActive: {
+    color: "white",
+  },
+  createButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#667eea",
+    borderRadius: 12,
+    paddingVertical: 16,
+    marginTop: 20,
+    shadowColor: "#667eea",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  createButtonDisabled: {
+    backgroundColor: "#94a3b8",
+  },
+  buttonIcon: {
+    marginRight: 8,
+  },
+  createButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "white",
   },
   modalOverlay: {
     position: "absolute",
@@ -470,11 +585,7 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   modalBackdrop: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalDropdown: {
@@ -485,15 +596,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: "70%",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: -4,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 10,
+    maxHeight: height * 0.6,
   },
   modalHeader: {
     flexDirection: "row",
@@ -506,80 +609,27 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "bold",
     color: "#1e293b",
   },
   modalScrollView: {
-    maxHeight: 300,
+    maxHeight: height * 0.5,
   },
   modalDropdownItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 16,
     paddingHorizontal: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#f1f5f9",
   },
   modalDropdownText: {
     fontSize: 16,
-    fontWeight: "400",
-    color: "#333",
+    color: "#1e293b",
   },
   modalDropdownTextActive: {
     color: "#667eea",
     fontWeight: "600",
-  },
-  urgencyContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 16,
-  },
-  urgencyButton: {
-    flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 12,
-    paddingVertical: 12,
-    marginHorizontal: 4,
-    alignItems: "center",
-  },
-  urgencyButtonActive: {
-    backgroundColor: "#667eea",
-  },
-  urgencyText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "white",
-  },
-  urgencyTextActive: {
-    color: "white",
-  },
-  createButton: {
-    backgroundColor: "#ef4444",
-    borderRadius: 16,
-    marginTop: 30,
-    paddingVertical: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#ef4444",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  createButtonDisabled: {
-    opacity: 0.7,
-  },
-  buttonIcon: {
-    marginRight: 8,
-  },
-  createButtonText: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "white",
   },
 })

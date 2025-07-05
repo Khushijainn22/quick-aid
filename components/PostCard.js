@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
+import { Ionicons } from "@expo/vector-icons"
 
 export default function PostCard({ post, onPress }) {
   const formatTime = (timestamp) => {
@@ -16,11 +17,38 @@ export default function PostCard({ post, onPress }) {
   }
 
   const getStatusColor = (status) => {
-    return status === "Pending" ? "#f59e0b" : "#10b981"
+    switch (status) {
+      case "Pending": return "#f59e0b"
+      case "Available": return "#10b981"
+      case "Resolved": return "#6366f1"
+      default: return "#64748b"
+    }
   }
 
-  const getTypeColor = (type) => {
-    return type === "Emergency" ? "#ef4444" : "#6366f1"
+  const getPostTypeColor = (postType) => {
+    switch (postType) {
+      case "Request": return "#ef4444"
+      case "Offer": return "#10b981"
+      default: return "#6366f1"
+    }
+  }
+
+  const getPostTypeIcon = (postType) => {
+    switch (postType) {
+      case "Request": return "help-circle-outline"
+      case "Offer": return "heart-outline"
+      default: return "document-outline"
+    }
+  }
+
+  const getUrgencyColor = (urgency) => {
+    switch (urgency) {
+      case "Critical": return "#ef4444"
+      case "High": return "#f59e0b"
+      case "Medium": return "#6366f1"
+      case "Low": return "#10b981"
+      default: return "#64748b"
+    }
   }
 
   return (
@@ -40,20 +68,35 @@ export default function PostCard({ post, onPress }) {
 
       <View style={styles.content}>
         <View style={styles.badges}>
-          <View style={[styles.badge, { backgroundColor: getTypeColor(post.postType) }]}>
+          <View style={[styles.badge, { backgroundColor: getPostTypeColor(post.postType) }]}>
+            <Ionicons 
+              name={getPostTypeIcon(post.postType)} 
+              size={12} 
+              color="white" 
+              style={{ marginRight: 4 }}
+            />
             <Text style={styles.badgeText}>{post.postType}</Text>
           </View>
           <View style={[styles.badge, { backgroundColor: getStatusColor(post.status) }]}>
             <Text style={styles.badgeText}>{post.status}</Text>
           </View>
+          {post.postType === "Request" && post.urgencyLevel && (
+            <View style={[styles.badge, { backgroundColor: getUrgencyColor(post.urgencyLevel) }]}>
+              <Text style={styles.badgeText}>{post.urgencyLevel}</Text>
+            </View>
+          )}
         </View>
+
+        <Text style={styles.title} numberOfLines={2}>
+          {post.title}
+        </Text>
 
         <Text style={styles.description} numberOfLines={3}>
           {post.description}
         </Text>
 
         <View style={styles.locationContainer}>
-          <Text style={styles.locationLabel}>📍</Text>
+          <Ionicons name="location-outline" size={14} color="#64748b" style={{ marginRight: 4 }} />
           <Text style={styles.location}>{post.location}</Text>
         </View>
 
@@ -129,33 +172,38 @@ const styles = StyleSheet.create({
   },
   badges: {
     flexDirection: "row",
-    gap: 8,
+    flexWrap: "wrap",
+    gap: 6,
   },
   badge: {
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
   },
   badgeText: {
     color: "white",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
   },
-  description: {
+  title: {
     fontSize: 16,
+    fontWeight: "bold",
     color: "#1e293b",
-    lineHeight: 22,
+    lineHeight: 20,
+  },
+  description: {
+    fontSize: 14,
+    color: "#374151",
+    lineHeight: 20,
   },
   locationContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
-  locationLabel: {
-    fontSize: 14,
-    marginRight: 4,
-  },
   location: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#64748b",
     flex: 1,
   },

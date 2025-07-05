@@ -69,7 +69,7 @@ function AppStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
-      <Stack.Screen name="PostDetail" component={PostDetailScreen} options={{ title: "Post Details" }} />
+      <Stack.Screen name="PostDetail" component={PostDetailScreen} options={{ headerShown: false }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Conversation" component={ConversationScreen} options={{ title: "Messages" }} />
     </Stack.Navigator>
