@@ -29,17 +29,12 @@ export default function ProfileScreen({ navigation }) {
       />
 
       {/* Header */}
-      <LinearGradient
-        colors={["rgba(30, 41, 59, 0.95)", "rgba(51, 65, 85, 0.95)"]}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-      >
-        <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>Profile</Text>
-          <Text style={styles.headerSubtitle}>Your Account Information</Text>
+      <View style={styles.header}>
+        <View style={styles.headerCapsule}>
+          <Text style={styles.headerTitle}>My Profile</Text>
+          <Text style={styles.headerSubtitle}>Manage your account</Text>
         </View>
-      </LinearGradient>
+      </View>
 
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
@@ -136,25 +131,35 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   header: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingTop: 50,
     paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
   },
-  headerContent: {
+  headerCapsule: {
+    backgroundColor: "rgba(255, 255, 255, 0)",
+    paddingHorizontal: 20,
+    paddingVertical: 1,
+    borderRadius: 50,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
     alignItems: "center",
+    width: "100%",
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
-    color: "white",
+    color: "#fafafa",
+    textAlign: "center",
   },
   headerSubtitle: {
-    fontSize: 14,
-    fontWeight: "400",
-    color: "rgba(255, 255, 255, 0.8)",
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#fafafa",
     marginTop: 4,
+    textAlign: "center",
   },
   content: {
     flex: 1,

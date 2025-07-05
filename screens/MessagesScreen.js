@@ -215,15 +215,12 @@ export default function MessagesScreen({ navigation }) {
       />
 
       {/* Header */}
-      <LinearGradient
-        colors={["rgba(30, 41, 59, 0.95)", "rgba(51, 65, 85, 0.95)"]}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-      >
-        <Text style={styles.headerTitle}>Messages</Text>
-        <Text style={styles.headerSubtitle}>Your conversations</Text>
-      </LinearGradient>
+      <View style={styles.header}>
+        <View style={styles.headerCapsule}>
+          <Text style={styles.headerTitle}>Messages</Text>
+          <Text style={styles.headerSubtitle}>Your conversations</Text>
+        </View>
+      </View>
 
       {userConversations.length === 0 ? (
         <View style={styles.emptyState}>
@@ -256,22 +253,35 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   header: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingTop: 50,
     paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+  },
+  headerCapsule: {
+    backgroundColor: "rgba(255, 255, 255, 0)",
+    paddingHorizontal: 20,
+    paddingVertical: 1,
+    borderRadius: 50,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+    alignItems: "center",
+    width: "100%",
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
-    color: "white",
+    color: "#fafafa",
+    textAlign: "center",
   },
   headerSubtitle: {
-    fontSize: 14,
-    fontWeight: "400",
-    color: "rgba(255, 255, 255, 0.8)",
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#fafafa",
     marginTop: 4,
+    textAlign: "center",
   },
   listContainer: {
     paddingVertical: 8,

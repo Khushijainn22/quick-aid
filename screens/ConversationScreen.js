@@ -84,28 +84,12 @@ export default function ConversationScreen({ route, navigation }) {
       />
 
       {/* Header */}
-      <LinearGradient
-        colors={["rgba(30, 41, 59, 0.95)", "rgba(51, 65, 85, 0.95)"]}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-      >
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <View style={styles.headerAvatar}>
-            <Text style={styles.headerAvatarText}>{otherUser.fullName.charAt(0).toUpperCase()}</Text>
-          </View>
-          <View style={styles.headerInfo}>
-            <Text style={styles.headerTitle}>{otherUser.fullName}</Text>
-          </View>
+      <View style={styles.header}>
+        <View style={styles.headerCapsule}>
+          <Text style={styles.headerTitle}>Chat</Text>
+          <Text style={styles.headerSubtitle}>Message conversation</Text>
         </View>
-        <View style={styles.placeholder} />
-      </LinearGradient>
+      </View>
 
       <KeyboardAvoidingView 
         style={styles.chatContainer} 
@@ -161,58 +145,35 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingTop: 50,
     paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
   },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    justifyContent: "center",
+  headerCapsule: {
+    backgroundColor: "rgba(255, 255, 255, 0)",
+    paddingHorizontal: 20,
+    paddingVertical: 1,
+    borderRadius: 50,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
     alignItems: "center",
-  },
-  headerContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-    justifyContent: "center",
-  },
-  headerAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#667eea",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  headerAvatarText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  headerInfo: {
-    alignItems: "center",
+    width: "100%",
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: "bold",
-    color: "white",
+    color: "#fafafa",
+    textAlign: "center",
   },
   headerSubtitle: {
-    fontSize: 12,
-    color: "rgba(255, 255, 255, 0.8)",
-    marginTop: 2,
-  },
-  placeholder: {
-    width: 40,
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#fafafa",
+    marginTop: 4,
+    textAlign: "center",
   },
   chatContainer: {
     flex: 1,
