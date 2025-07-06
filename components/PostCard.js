@@ -16,6 +16,19 @@ export default function PostCard({ post, onPress }) {
     }
   }
 
+  const getDaysUntilDeletion = (timestamp) => {
+    const postDate = new Date(timestamp)
+    const now = new Date()
+    const twoWeeksFromPost = new Date(postDate)
+    twoWeeksFromPost.setDate(twoWeeksFromPost.getDate() + 14)
+    
+    const diffInDays = Math.ceil((twoWeeksFromPost - now) / (1000 * 60 * 60 * 24))
+    return Math.max(0, diffInDays)
+  }
+
+  const daysUntilDeletion = getDaysUntilDeletion(post.timestamp)
+  const isCloseToDeletion = daysUntilDeletion <= 3 && daysUntilDeletion > 0
+
   const getStatusColor = (status) => {
     switch (status) {
       case "Pending": return "#f59e0b"
@@ -104,6 +117,15 @@ export default function PostCard({ post, onPress }) {
           <Text style={styles.commentsCount}>
             {post.comments.length} comment{post.comments.length !== 1 ? "s" : ""}
           </Text>
+        )}
+
+        {isCloseToDeletion && (
+          <View style={styles.deletionWarning}>
+            <Ionicons name="warning-outline" size={14} color="#f59e0b" />
+            <Text style={styles.deletionWarningText}>
+              Auto-deletes in {daysUntilDeletion} day{daysUntilDeletion !== 1 ? "s" : ""}
+            </Text>
+          </View>
         )}
       </View>
     </TouchableOpacity>
@@ -211,5 +233,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#6366f1",
     fontWeight: "500",
+  },
+  deletionWarning: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fef3c7",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginTop: 4,
+  },
+  deletionWarningText: {
+    fontSize: 11,
+    color: "#92400e",
+    fontWeight: "500",
+    marginLeft: 4,
   },
 })

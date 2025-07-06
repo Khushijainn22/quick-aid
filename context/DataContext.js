@@ -20,7 +20,28 @@ export const DataProvider = ({ children }) => {
   useEffect(() => {
     loadPosts()
     loadConversations()
+    cleanupOldPosts()
   }, [])
+
+  const cleanupOldPosts = async () => {
+    try {
+      const twoWeeksAgo = new Date()
+      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14)
+      
+      const updatedPosts = posts.filter((post) => {
+        const postDate = new Date(post.timestamp)
+        return postDate > twoWeeksAgo
+      })
+      
+      if (updatedPosts.length !== posts.length) {
+        setPosts(updatedPosts)
+        await AsyncStorage.setItem("posts", JSON.stringify(updatedPosts))
+        console.log(`Cleaned up ${posts.length - updatedPosts.length} old posts`)
+      }
+    } catch (error) {
+      console.error("Error cleaning up old posts:", error)
+    }
+  }
 
   const loadPosts = async () => {
     try {
@@ -136,12 +157,41 @@ export const DataProvider = ({ children }) => {
     }
   }
 
+  const deletePost = async (postId, userId) => {
+    try {
+      // Check if the post belongs to the user
+      const postToDelete = posts.find((post) => post.id === postId)
+      if (!postToDelete) {
+        return { success: false, error: "Post not found" }
+      }
+      
+      if (postToDelete.userId !== userId) {
+        return { success: false, error: "You can only delete your own posts" }
+      }
+
+      const updatedPosts = posts.filter((post) => post.id !== postId)
+      setPosts(updatedPosts)
+      await AsyncStorage.setItem("posts", JSON.stringify(updatedPosts))
+
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: "Failed to delete post" }
+    }
+  }
+
+  const getUserPosts = (userId) => {
+    return posts.filter((post) => post.userId === userId)
+  }
+
   const value = {
     posts,
     conversations,
     createPost,
     addComment,
     sendMessage,
+    deletePost,
+    getUserPosts,
+    cleanupOldPosts,
     loadPosts,
     loadConversations,
   }

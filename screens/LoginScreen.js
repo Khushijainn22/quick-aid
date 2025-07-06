@@ -72,8 +72,8 @@ export default function LoginScreen({ navigation }) {
             <View style={styles.logoContainer}>
               <Ionicons name="medical" size={40} color="white" />
             </View>
-            <Text style={styles.title}>Welcome</Text>
-            <Text style={styles.subtitle}>Log in to your QuickAid account</Text>
+            <Text style={styles.title}>Welcome to QuickAid</Text>
+            <Text style={styles.subtitle}>Log in to your account</Text>
           </View>
 
           {/* Form Section */}
